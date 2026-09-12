@@ -4,3 +4,11 @@ __pycache__/
 .server.log
 .env
 .env.*
+server.py
+start.command
+README.md
+DEPLOYMENT.md
+GITHUB_VERCEL_GUIDE.md
+netlify.toml
+vercel.json
+docs/build_product_manual.py
