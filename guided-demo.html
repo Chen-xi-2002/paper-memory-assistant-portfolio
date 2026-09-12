@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="论文记忆与引用助手自动演示">
+  <title>论文记忆与引用助手自动演示</title>
+  <style>
+    :root {
+      --ink: #1d2926;
+      --muted: #71807a;
+      --line: #d9e1dc;
+      --paper: #f7f5ef;
+      --forest: #175b4d;
+      --forest-dark: #0f443a;
+      --forest-soft: #e5f0eb;
+      --ochre: #b7793f;
+      --ochre-soft: #f8eee1;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { height: 100%; margin: 0; }
+    body { color: var(--ink); background: var(--paper); overflow: hidden; }
+    button, iframe { font: inherit; }
+    .layout {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      height: 100vh;
+    }
+    .narrator {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      padding: 22px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 100% 0, rgba(183, 121, 63, .22), transparent 30%),
+        var(--forest-dark);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; font-size: 13px; font-weight: 750; }
+    .brand-mark { display: grid; place-items: center; width: 34px; height: 34px; color: var(--forest-dark); background: #f7f1e6; border-radius: 10px; font-family: Georgia, serif; font-size: 18px; }
+    .demo-label { color: rgba(255,255,255,.52); font-size: 10px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .progress-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 8px; }
+    h1 { margin: 0; font-family: "Iowan Old Style", "Songti SC", Georgia, serif; font-size: 28px; line-height: 1.25; }
+    .progress { color: rgba(255,255,255,.68); font-family: Georgia, serif; font-size: 13px; }
+    .narration { min-height: 118px; margin-top: 16px; color: rgba(255,255,255,.72); font-size: 13px; line-height: 1.7; }
+    .status { display: inline-flex; align-items: center; gap: 7px; min-height: 28px; margin-top: 8px; padding: 5px 9px; color: #dceee6; background: rgba(255,255,255,.07); border-radius: 999px; font-size: 10px; }
+    .status::before { width: 6px; height: 6px; background: #74c69d; border-radius: 50%; content: ""; }
+    .controls { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; margin-top: 18px; }
+    .controls button {
+      min-height: 40px;
+      padding: 8px 12px;
+      color: #fff;
+      background: rgba(255,255,255,.09);
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .controls button.primary { color: var(--forest-dark); background: #f5efe3; border-color: transparent; font-weight: 750; }
+    .controls button:disabled { cursor: not-allowed; opacity: .42; }
+    .step-list { display: grid; gap: 4px; margin-top: 20px; overflow-y: auto; }
+    .step-button {
+      display: grid;
+      grid-template-columns: 25px minmax(0, 1fr);
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
+      color: rgba(255,255,255,.58);
+      background: transparent;
+      border: 0;
+      border-radius: 9px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 11px;
+    }
+    .step-button:hover, .step-button.active { color: #fff; background: rgba(255,255,255,.07); }
+    .step-index { display: grid; place-items: center; width: 23px; height: 23px; background: rgba(255,255,255,.08); border-radius: 7px; font-family: Georgia, serif; font-size: 10px; }
+    .step-button.active .step-index { color: var(--forest-dark); background: #f5efe3; }
+    .note { margin-top: auto; padding-top: 16px; color: rgba(255,255,255,.38); font-size: 10px; line-height: 1.6; }
+    .stage { position: relative; min-width: 0; background: #eef0ec; }
+    .stage::before { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 80% 10%, rgba(183,121,63,.1), transparent 28%); content: ""; }
+    iframe { position: relative; z-index: 1; width: 100%; height: 100%; border: 0; background: #fbfaf6; }
+    .protocol-warning {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+      background: rgba(247, 245, 239, .96);
+      text-align: center;
+    }
+    .protocol-warning-card {
+      max-width: 520px;
+      padding: 28px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: 0 18px 50px rgba(21, 40, 34, .12);
+    }
+    .protocol-warning h2 {
+      margin: 0 0 10px;
+      color: var(--forest-dark);
+      font-family: "Iowan Old Style", "Songti SC", Georgia, serif;
+      font-size: 25px;
+    }
+    .protocol-warning p {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    .protocol-warning a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 9px 14px;
+      color: #fff;
+      background: var(--forest);
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 750;
+      text-decoration: none;
+    }
+    @media (max-width: 900px) {
+      body { overflow: auto; }
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(430px, 68vh) auto;
+        height: auto;
+        min-height: 100vh;
+      }
+      .stage {
+        grid-row: 1;
+        min-height: 68vh;
+      }
+      iframe { min-height: 68vh; }
+      .narrator {
+        grid-row: 2;
+        min-height: auto;
+      }
+      .narration { min-height: auto; }
+      .step-list { max-height: 310px; }
+      .note { margin-top: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="layout">
+    <aside class="narrator">
+      <div class="brand"><span class="brand-mark">文</span>论文记忆与引用助手</div>
+      <span class="demo-label">自动演示模式</span>
+      <div class="progress-row">
+        <h1 id="stepTitle">准备演示</h1>
+        <span class="progress" id="stepProgress">1 / 6</span>
+      </div>
+      <p class="narration" id="stepNarration">右侧使用独立演示数据库，不会影响你的真实论文和笔记。</p>
+      <span class="status" id="stepStatus">等待开始</span>
+      <div class="controls">
+        <button class="primary" id="playButton" type="button">自动播放</button>
+        <button id="prevButton" type="button" disabled>上一步</button>
+        <button id="nextButton" type="button">下一步</button>
+      </div>
+      <div class="step-list" id="stepList"></div>
+      <div class="note">这是慢速引导演示。每个步骤完成后会停留并倒计时，也可以直接点“下一步”自行控制节奏。</div>
+    </aside>
+    <section class="stage">
+      <div class="protocol-warning" id="protocolWarning" hidden>
+        <div class="protocol-warning-card">
+          <h2>请通过本地服务器打开</h2>
+          <p>当前地址以 file:// 开头，浏览器无法加载右侧的模块化 Demo。请先运行 start.command，然后打开下面的服务器地址。</p>
+          <a href="http://127.0.0.1:8765/guided-demo.html?autoplay=1">打开服务器版自动演示</a>
+        </div>
+      </div>
+      <iframe id="demoFrame" src="./index.html?demo=1" title="论文记忆与引用助手自动演示"></iframe>
+    </section>
+  </main>
+
+  <script>
+    const demoFrame = document.getElementById('demoFrame');
+    const stepTitle = document.getElementById('stepTitle');
+    const stepNarration = document.getElementById('stepNarration');
+    const stepProgress = document.getElementById('stepProgress');
+    const stepStatus = document.getElementById('stepStatus');
+    const playButton = document.getElementById('playButton');
+    const prevButton = document.getElementById('prevButton');
+    const nextButton = document.getElementById('nextButton');
+    const stepList = document.getElementById('stepList');
+    const protocolWarning = document.getElementById('protocolWarning');
+    const isLocalFile = window.location.protocol === 'file:';
+    let currentStep = 0;
+    let running = false;
+    if (isLocalFile) {
+      protocolWarning.hidden = false;
+      demoFrame.src = 'about:blank';
+      stepStatus.textContent = '需要通过本地服务器打开';
+    }
+
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    function frameDocument() {
+      return demoFrame.contentDocument;
+    }
+
+    async function waitFor(predicate, timeout = 20000) {
+      const startedAt = Date.now();
+      while (Date.now() - startedAt < timeout) {
+        try {
+          if (predicate()) return true;
+        } catch {}
+        await delay(160);
+      }
+      throw new Error('演示步骤超时，请刷新后重试');
+    }
+
+    async function waitForApp() {
+      await waitFor(() => {
+        const doc = frameDocument();
+        return doc && doc.getElementById('chatInput') && doc.getElementById('sendButton');
+      }, 20000);
+      await delay(500);
+    }
+
+    function setValue(element, value) {
+      const frameWindow = demoFrame.contentWindow;
+      const prototype = element.tagName === 'TEXTAREA'
+        ? frameWindow.HTMLTextAreaElement.prototype
+        : frameWindow.HTMLInputElement.prototype;
+      const setter = Object.getOwnPropertyDescriptor(prototype, 'value').set;
+      setter.call(element, value);
+      element.dispatchEvent(new frameWindow.Event('input', { bubbles: true }));
+    }
+
+    async function askQuestion(question) {
+      const doc = frameDocument();
+      const input = doc.getElementById('chatInput');
+      const send = doc.getElementById('sendButton');
+      setValue(input, question);
+      await delay(120);
+      send.click();
+      await delay(350);
+      await waitFor(() => !doc.getElementById('sendButton').disabled && !doc.querySelector('.loading-answer'), 25000);
+    }
+
+    async function clickFreshChat() {
+      const doc = frameDocument();
+      doc.getElementById('newChatButton').click();
+      await delay(450);
+    }
+
+    async function openLibraryPaper() {
+      const doc = frameDocument();
+      const libraryButton = doc.querySelector('[data-view="library"]');
+      libraryButton.click();
+      await waitFor(() => !doc.getElementById('libraryView').hidden, 8000);
+      const search = doc.getElementById('librarySearch');
+      setValue(search, 'L1 Prosody');
+      await waitFor(() => doc.querySelectorAll('.paper-card').length > 0, 8000);
+      const cards = [...doc.querySelectorAll('.paper-card')];
+      const showcase = cards.find((card) => /L1 Prosody|Cantonese|Mandarin|本地 PDF/i.test(card.textContent || ''));
+      (showcase || cards[0]).click();
+      await waitFor(() => {
+        const drawer = doc.getElementById('paperDrawer');
+        return drawer && !drawer.hidden && drawer.querySelector('.fulltext-preview');
+      }, 8000);
+      await delay(800);
+      await highlightElement('.fulltext-preview', 3000, true);
+    }
+
+    async function addPaperNote(note) {
+      const doc = frameDocument();
+      await waitFor(() => doc.querySelector('.add-note-form textarea[name="note"]'));
+      const textarea = doc.querySelector('.add-note-form textarea[name="note"]');
+      textarea.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      await delay(1200);
+      let typed = '';
+      for (const character of note) {
+        typed += character;
+        setValue(textarea, typed);
+        await delay(38);
+      }
+      await delay(1200);
+      doc.querySelector('.add-note-form').requestSubmit();
+      await waitFor(() => [...doc.querySelectorAll('.note-card')].some((card) => card.textContent.includes(note)), 8000);
+      await highlightElement('.note-card:last-of-type', 2800, true);
+    }
+
+    async function openFirstCitation() {
+      const doc = frameDocument();
+      await waitFor(() => doc.querySelector('.citation-card [data-paper-id]'));
+      const button = doc.querySelector('.citation-card [data-paper-id]');
+      button.click();
+      await waitFor(() => {
+        const drawer = doc.getElementById('paperDrawer');
+        return drawer && !drawer.hidden;
+      }, 8000);
+      await highlightElement('#paperDrawer', 2200, false);
+    }
+
+    async function queryPaperFullText(question) {
+      const doc = frameDocument();
+      await waitFor(() => doc.querySelector('.paper-query-form input'));
+      const input = doc.querySelector('.paper-query-form input');
+      setValue(input, question);
+      doc.querySelector('.paper-query-form').requestSubmit();
+      await waitFor(() => doc.querySelector('.paper-query-results .source-hit, .paper-query-results .no-results'), 10000);
+      await highlightElement('.paper-search-hits', 3600, true);
+    }
+
+    async function closeDrawer() {
+      const doc = frameDocument();
+      const close = doc.getElementById('closeDrawerButton');
+      if (close && !doc.getElementById('paperDrawer').hidden) close.click();
+      await delay(250);
+    }
+
+    async function highlightElement(selector, duration = 2600, scroll = true) {
+      const doc = frameDocument();
+      const element = doc.querySelector(selector);
+      if (!element) return;
+      element.classList.add('demo-highlight');
+      if (scroll) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      await delay(duration);
+      element.classList.remove('demo-highlight');
+    }
+
+    async function showImportPreview() {
+      const doc = frameDocument();
+      doc.getElementById('importTopButton').click();
+      await waitFor(() => !doc.getElementById('importModal').hidden, 5000);
+      await highlightElement('#dropzone', 3200, false);
+      doc.getElementById('closeImportButton').click();
+      await waitFor(() => doc.getElementById('importModal').hidden, 4000);
+    }
+
+    async function viewingPause(seconds) {
+      for (let remaining = seconds; remaining > 0; remaining -= 1) {
+        stepStatus.textContent = `请查看右侧结果 · ${remaining} 秒后继续`;
+        await delay(1000);
+      }
+    }
+
+    const steps = [
+      {
+        title: '搜索需要下载的论文',
+        narration: '先输入研究需求。系统查询 OpenAlex 和 Crossref，返回题目、作者、摘要、DOI、来源链接、开放 PDF 或“查找 PDF”入口。',
+        action: async () => {
+          await waitForApp();
+          await clickFreshChat();
+          await askQuestion('帮我搜索汉语和粤语在感知英语重音方面的论文');
+          await highlightElement('.external-section', 3200, true);
+        },
+        holdMs: 3200,
+      },
+      {
+        title: '导入 PDF 并提取全文',
+        narration: '演示库会复制你此前成功导入的 L1 Prosody 论文，用它的真实全文来复现“上传 PDF 后全文可检索”的结果。实际操作中，这里选择本地 PDF 即可。',
+        action: async () => {
+          await showImportPreview();
+          await openLibraryPaper();
+        },
+        holdMs: 4200,
+      },
+      {
+        title: '读论文并添加笔记',
+        narration: '打开论文详情，补充自己的理解。笔记和全文进入同一个检索空间，之后写作提问时可以按来源核对。',
+        action: async () => {
+          await addPaperNote('演示笔记：这篇论文比较了粤语和普通话母语者感知与产出英语词汇重音的表现；普通话轻声经验可能带来一定优势。');
+        },
+        holdMs: 4600,
+      },
+      {
+        title: '搜索论文中的写作内容',
+        narration: '输入一个真实写作问题。系统会做中英文术语扩展，在档案中找出可能回答该问题的论文，并显示命中的论文、笔记或全文。',
+        action: async () => {
+          await closeDrawer();
+          await clickFreshChat();
+          await askQuestion('汉语和粤语在感知英语声调的时候不同，是哪篇论文？');
+          await highlightElement('.citation-list', 3400, true);
+        },
+        holdMs: 3800,
+      },
+      {
+        title: '打开论文查看全文依据',
+        narration: '点击系统返回的论文，进入这篇论文的全文查证。系统返回有或没有、命中次数、原句和上下文，避免只给一个不可核对的结论。',
+        action: async () => {
+          await openFirstCitation();
+          await queryPaperFullText('粤语和汉语在感知英语重音时有什么差异？');
+        },
+        holdMs: 5200,
+      },
+    ];
+
+    function renderStepList() {
+      stepList.innerHTML = steps.map((step, index) => `
+        <button class="step-button ${index === currentStep ? 'active' : ''}" type="button" data-step="${index}">
+          <span class="step-index">${index + 1}</span>
+          <span>${step.title}</span>
+        </button>
+      `).join('');
+    }
+
+    function updateInterface() {
+      const step = steps[currentStep];
+      stepTitle.textContent = step.title;
+      stepNarration.textContent = step.narration;
+      stepProgress.textContent = `${currentStep + 1} / ${steps.length}`;
+      prevButton.disabled = running || isLocalFile || currentStep === 0;
+      nextButton.disabled = running || isLocalFile || currentStep === steps.length - 1;
+      playButton.disabled = running || isLocalFile;
+      renderStepList();
+    }
+
+    async function runStep(index) {
+      if (isLocalFile || index < 0 || index >= steps.length || running) return;
+      currentStep = index;
+      running = true;
+      updateInterface();
+      stepStatus.textContent = '正在操作右侧 Demo';
+      try {
+        await steps[index].action();
+        stepStatus.textContent = index === steps.length - 1 ? '自动演示完成' : '本步骤已完成';
+      } catch (error) {
+        stepStatus.textContent = error.message || '步骤执行失败';
+        console.error(error);
+      } finally {
+        running = false;
+        updateInterface();
+      }
+    }
+
+    async function playAll() {
+      if (isLocalFile || running) return;
+      playButton.textContent = '播放中';
+      try {
+        for (let index = currentStep; index < steps.length; index += 1) {
+          await runStep(index);
+          if (!isLocalFile && steps[index].holdMs) await viewingPause(Math.ceil(steps[index].holdMs / 1000));
+          if (index < steps.length - 1) await delay(500);
+        }
+      } finally {
+        playButton.textContent = '重新播放';
+      }
+    }
+
+    playButton.addEventListener('click', playAll);
+    nextButton.addEventListener('click', () => runStep(currentStep + 1));
+    prevButton.addEventListener('click', () => {
+      currentStep = Math.max(0, currentStep - 1);
+      stepStatus.textContent = '已回到上一步说明';
+      updateInterface();
+    });
+    stepList.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-step]');
+      if (!button || running) return;
+      runStep(Number(button.dataset.step));
+    });
+    demoFrame.addEventListener('load', async () => {
+      if (isLocalFile) return;
+      try {
+        await waitForApp();
+        stepStatus.textContent = 'Demo 已就绪';
+        if (new URLSearchParams(window.location.search).get('autoplay') === '1') {
+          await delay(500);
+          playAll();
+        }
+      } catch (error) {
+        stepStatus.textContent = error.message;
+      }
+    });
+
+    updateInterface();
+  </script>
+</body>
+</html>

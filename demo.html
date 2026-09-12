@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="论文记忆与引用助手项目 Demo、产品说明书、PRD 与用户流程">
+  <title>论文记忆与引用助手 Demo</title>
+  <style>
+    :root {
+      --ink: #1d2926;
+      --muted: #68746f;
+      --line: #dce3de;
+      --paper: #fbfaf6;
+      --white: #fff;
+      --forest: #175b4d;
+      --forest-dark: #0f443a;
+      --forest-soft: #e8f1ed;
+      --ochre: #b7793f;
+      --ochre-soft: #f8eee1;
+      --shadow: 0 18px 55px rgba(21, 40, 34, 0.12);
+      --radius: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 85% 2%, rgba(183, 121, 63, 0.12), transparent 25%),
+        radial-gradient(circle at 10% 85%, rgba(23, 91, 77, 0.09), transparent 28%),
+        var(--paper);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      height: 72px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--forest-dark);
+      font-weight: 750;
+      text-decoration: none;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      color: #f9f4e9;
+      background: var(--forest);
+      border-radius: 10px;
+      font-family: Georgia, serif;
+      font-size: 18px;
+    }
+    .nav-links { display: flex; gap: 18px; margin-left: auto; }
+    .nav a { text-decoration: none; }
+    .nav a:hover { color: var(--forest); }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.12fr 0.88fr;
+      gap: 54px;
+      align-items: center;
+      padding: 72px 0 64px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 9px;
+      color: var(--forest);
+      background: var(--forest-soft);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 750;
+      letter-spacing: .06em;
+    }
+    h1, h2, h3 { margin: 0; font-family: "Iowan Old Style", "Songti SC", Georgia, serif; }
+    h1 {
+      margin-top: 18px;
+      font-size: clamp(38px, 5.5vw, 66px);
+      line-height: 1.08;
+      letter-spacing: -.035em;
+    }
+    .hero-copy { max-width: 660px; margin-top: 20px; color: var(--muted); font-size: 17px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      color: var(--ink);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    .button:hover { transform: translateY(-1px); box-shadow: 0 9px 24px rgba(21, 40, 34, .1); }
+    .button.primary { color: #fff; background: var(--forest); border-color: var(--forest); }
+    .button.primary:hover { background: var(--forest-dark); }
+    .hero-panel {
+      padding: 18px;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+    }
+    .hero-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 13px; }
+    .hero-panel-head strong { font-size: 13px; }
+    .live-dot { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; }
+    .live-dot::before { width: 7px; height: 7px; background: #4d9b78; border-radius: 50%; content: ""; }
+    .demo-frame {
+      width: 100%;
+      height: 420px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 17px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .metric { padding: 13px; background: var(--white); border: 1px solid var(--line); border-radius: 14px; }
+    .metric strong { display: block; color: var(--forest-dark); font-size: 20px; font-family: Georgia, serif; }
+    .metric span { color: var(--muted); font-size: 10px; }
+    section { padding: 58px 0; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+    .section-head h2 { font-size: clamp(28px, 4vw, 40px); }
+    .section-head p { max-width: 520px; margin: 0; color: var(--muted); font-size: 14px; }
+    .steps, .artifacts { display: grid; gap: 14px; }
+    .steps { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+    .step, .artifact {
+      padding: 20px;
+      background: rgba(255, 255, 255, .74);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .step-number {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-bottom: 14px;
+      color: var(--forest-dark);
+      background: var(--forest-soft);
+      border-radius: 9px;
+      font-family: Georgia, serif;
+      font-weight: 700;
+    }
+    .step h3, .artifact h3 { margin-bottom: 7px; font-size: 18px; }
+    .step p, .artifact p { margin: 0; color: var(--muted); font-size: 12px; }
+    .artifact {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 20px;
+      text-decoration: none;
+      transition: .18s ease;
+    }
+    .artifact:hover { border-color: #aebfb7; transform: translateY(-2px); }
+    .artifact .button { white-space: nowrap; }
+    .artifact-tag {
+      display: inline-block;
+      margin-bottom: 7px;
+      color: var(--ochre);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .boundary {
+      display: grid;
+      grid-template-columns: .85fr 1.15fr;
+      gap: 52px;
+      padding: 34px;
+      background: var(--forest-dark);
+      border-radius: 28px;
+      color: #fff;
+    }
+    .boundary h2 { font-size: 34px; }
+    .boundary p { color: rgba(255, 255, 255, .67); }
+    .boundary-list { display: grid; gap: 14px; }
+    .boundary-item { padding-bottom: 13px; border-bottom: 1px solid rgba(255, 255, 255, .12); }
+    .boundary-item strong { display: block; font-size: 13px; }
+    .boundary-item span { color: rgba(255, 255, 255, .62); font-size: 12px; }
+    footer { padding: 24px 0 48px; color: var(--muted); font-size: 11px; text-align: center; }
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 44px; }
+      .steps { grid-template-columns: repeat(2, 1fr); }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .boundary { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      .nav-links { display: none; }
+      .hero { gap: 30px; padding-top: 28px; }
+      .demo-frame { height: 360px; }
+      .steps { grid-template-columns: 1fr; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 9px; }
+      .artifact { grid-template-columns: 1fr; }
+      .artifact .button { width: 100%; }
+      .boundary { padding: 25px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell nav">
+    <a class="brand" href="./demo.html"><span class="brand-mark">文</span>论文记忆与引用助手</a>
+    <nav class="nav-links">
+      <a href="#flow">体验路线</a>
+      <a href="#materials">项目资料</a>
+      <a href="#boundary">证据边界</a>
+      <a href="./guided-demo.html?autoplay=1">自动演示</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="shell hero">
+      <div>
+        <span class="eyebrow">个人项目初试 · 可交互原型</span>
+        <h1>把读过的论文变成写作时找得回的证据</h1>
+        <p class="hero-copy">面向论文写作者的本地优先记忆与引用助手。先检索个人论文、笔记和全文，证据不足时再搜索公开学术数据库，并把每条依据明确标记为全文、笔记、摘要或待补 PDF。</p>
+        <div class="hero-actions">
+          <a class="button primary" href="./guided-demo.html?autoplay=1">自动播放 Demo</a>
+          <a class="button" href="./index.html">自由体验</a>
+          <a class="button" href="./docs/论文记忆与引用助手产品说明书.docx">下载产品说明书</a>
+          <a class="button" href="./docs/PRD.md">阅读 PRD</a>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <div class="hero-panel-head">
+          <strong>Demo 实时预览</strong>
+          <span class="live-dot">本地数据优先</span>
+        </div>
+        <iframe class="demo-frame" src="./index.html?demo=1" title="论文记忆与引用助手实时 Demo"></iframe>
+        <div class="metrics">
+          <div class="metric"><strong>PDF</strong><span>全文提取与检索</span></div>
+          <div class="metric"><strong>L1/L2</strong><span>中英文混合提问</span></div>
+          <div class="metric"><strong>2 源</strong><span>OpenAlex + Crossref</span></div>
+          <div class="metric"><strong>0</strong><span>无证据确定性回答</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell" id="flow">
+      <div class="section-head">
+        <h2>3 分钟体验路线</h2>
+        <p>演示重点不是功能数量，而是从论文记忆到可追溯回答的完整闭环。</p>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <span class="step-number">1</span>
+          <h3>搜索目标论文</h3>
+          <p>按研究需求查询 OpenAlex 和 Crossref，返回题目、摘要、DOI、来源链接和查找 PDF 入口。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">2</span>
+          <h3>导入 PDF 全文</h3>
+          <p>上传 PDF，提取全文并保存。演示使用已成功导入的 L1 Prosody 论文复现全文可检索状态。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">3</span>
+          <h3>阅读并做笔记</h3>
+          <p>在论文详情中补充自己的理解和可用于写作的结论，笔记进入同一检索空间。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">4</span>
+          <h3>搜索写作内容</h3>
+          <p>输入汉语、粤语与英语重音感知等真实问题，系统返回相关论文和证据来源。</p>
+        </article>
+        <article class="step">
+          <span class="step-number">5</span>
+          <h3>进入全文查证</h3>
+          <p>点击目标论文，在已保存全文中返回有或没有、命中原句和上下文。</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="shell" id="materials">
+      <div class="section-head">
+        <h2>项目材料</h2>
+        <p>面试官可以从不同材料看到问题发现、产品设计、原型搭建和验证迭代。</p>
+      </div>
+      <div class="artifacts">
+        <a class="artifact" href="./guided-demo.html?autoplay=1">
+          <div><span class="artifact-tag">Guided Demo</span><h3>慢速自动演示</h3><p>依次展示论文检索与下载入口、PDF 全文、阅读笔记、写作检索和单篇全文查证。</p></div>
+          <span class="button primary">播放演示</span>
+        </a>
+        <a class="artifact" href="./index.html">
+          <div><span class="artifact-tag">Prototype</span><h3>自由体验 Demo</h3><p>论文导入、文献记忆、证据问答、单篇全文查证和在线检索闭环。</p></div>
+          <span class="button">打开体验</span>
+        </a>
+        <a class="artifact" href="./docs/论文记忆与引用助手产品说明书.docx">
+          <div><span class="artifact-tag">Manual</span><h3>产品说明书</h3><p>产品定位、用户场景、快速开始、功能边界、异常处理和验收清单。</p></div>
+          <span class="button">查看说明书</span>
+        </a>
+        <a class="artifact" href="./docs/PRD.md">
+          <div><span class="artifact-tag">PRD</span><h3>产品需求文档</h3><p>目标用户、成功指标、MVP 范围、P0/P1 优先级和产品决策。</p></div>
+          <span class="button">阅读 PRD</span>
+        </a>
+        <a class="artifact" href="./docs/USER_FLOW.md">
+          <div><span class="artifact-tag">Flow</span><h3>用户流程</h3><p>首次使用、基于文献库提问、单篇全文查证和在线发现论文。</p></div>
+          <span class="button">查看流程</span>
+        </a>
+        <a class="artifact" href="./docs/VALIDATION_PLAN.md">
+          <div><span class="artifact-tag">Validation</span><h3>验证与迭代方案</h3><p>用户访谈问题、可用性测试任务、检索基准和版本记录模板。</p></div>
+          <span class="button">查看方案</span>
+        </a>
+        <a class="artifact" href="./docs/DEMO_SCRIPT.md">
+          <div><span class="artifact-tag">Speaker Script</span><h3>3 至 5 分钟演示讲稿</h3><p>用于录屏或现场讲解，不等同于自动演示。</p></div>
+          <span class="button">查看脚本</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="shell boundary" id="boundary">
+      <div>
+        <h2>证据边界</h2>
+        <p>产品不把“找到一篇相关论文”当成“已经证明一个结论”。</p>
+      </div>
+      <div class="boundary-list">
+        <div class="boundary-item"><strong>全文与摘要分开</strong><span>只有摘要时，不判断论文正文是否包含某个观点。</span></div>
+        <div class="boundary-item"><strong>关键词与语义分开</strong><span>关键词未命中会明确说明，不推断论文绝对没有讨论。</span></div>
+        <div class="boundary-item"><strong>候选与证据分开</strong><span>在线候选先进入文献库，补全 PDF 后才参与全文查证。</span></div>
+        <div class="boundary-item"><strong>本地与联网分开</strong><span>论文和笔记默认保存于浏览器本地，联网只发送检索关键词。</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>论文记忆与引用助手 · 个人项目 Demo · 2026</footer>
+</body>
+</html>
